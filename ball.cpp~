@@ -1,5 +1,5 @@
 #include "ball.h"
-
+#include <iostream>
 
 //f: some math function on 2 variables: x, y; return z
 float f(float a, float b){
@@ -57,7 +57,7 @@ int getSign(float f){
 	return f < 0 ? -1 : 1;
 }
 void Ball::update(float time){
-		if(a[2] < 0.5 && a[2] > -0.5){
+		if(a[2] < 0.1 && a[2] > -0.1){
 		
 			//std::cout << "END " <<"\n";
 		return;//in future also direct[0,1] with AND
@@ -85,7 +85,7 @@ void Ball::update(float time){
 			//std::cout << "Beta : " <<beta <<"\n";
 			//std::cout << "Gamma -> "<<gamma <<"\n";
 			//std::cout << "Alpha >>" << alpha <<"\n";
-			a[0] = -sin(beta) / PI;
+			a[0] = 10*  -sin(beta) / PI;
 			//if( alpha < PI/2 )v[0] *= -1;
 			//****************************************************
 			
@@ -97,7 +97,7 @@ void Ball::update(float time){
 			std::cout << "Beta : " <<beta <<"\n";
 			std::cout << "Gamma -> "<<gamma <<"\n";
 			std::cout << "Alpha >>" << alpha <<"\n";
-			a[1] = -sin(beta) / PI;
+			a[1] = 10 * -sin(beta) / PI;
 			//****************************************************
 			
 		

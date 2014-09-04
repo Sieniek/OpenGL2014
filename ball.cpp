@@ -57,7 +57,7 @@ int getSign(float f){
 	return f < 0 ? -1 : 1;
 }
 void Ball::update(float time){
-		if(a[2] < 0.5 && a[2] > -0.5){
+		if(a[2] < 0.1 && a[2] > -0.1){
 		
 			//std::cout << "END " <<"\n";
 		return;//in future also direct[0,1] with AND
@@ -77,7 +77,7 @@ void Ball::update(float time){
 			//std::cout << "v0 -> "<<v[0] <<"\n";
 		
 		if(z - r <= f(x, y) && v[2] <= 0){//pilka spada i ma sie odbic
-		
+			// div by 0 
 			float alpha = acos(a[0]/distance(a[0], a[2]));//angle btwn Ball-vector and x/y axis
 			float gamma = acos(x/distance(x,f(x,y)));//angle btwn Surface-vector and x/y axis
 			float beta = alpha - gamma;
@@ -85,7 +85,7 @@ void Ball::update(float time){
 			//std::cout << "Beta : " <<beta <<"\n";
 			//std::cout << "Gamma -> "<<gamma <<"\n";
 			//std::cout << "Alpha >>" << alpha <<"\n";
-			a[0] = -sin(beta) / PI;
+			a[0] = 10*  -sin(beta) / PI;
 			//if( alpha < PI/2 )v[0] *= -1;
 			//****************************************************
 			
@@ -97,7 +97,7 @@ void Ball::update(float time){
 			std::cout << "Beta : " <<beta <<"\n";
 			std::cout << "Gamma -> "<<gamma <<"\n";
 			std::cout << "Alpha >>" << alpha <<"\n";
-			a[1] = -sin(beta) / PI;
+			a[1] = 10 * -sin(beta) / PI;
 			//****************************************************
 			
 		

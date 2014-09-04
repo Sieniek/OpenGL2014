@@ -15,45 +15,52 @@ struct Element{
 	Ball *object;
 	Element *next = NULL;
 };
+
+struct Camera{
+	float xRotation, yRotation, zRotation;
+};
+struct Screen{
+	float width, height;
+};
+
+mat4 m, v, p;
+
+//List of Elements
 Element *list;
 
-mat4 m,v,p;
-
+//Pink ball
 Ball cursor = *new Ball();
+
 //screen settings (auto-change in p-matrix)
-int widthScreen = 1200, heightScreen = 300;
+Screen screen = {1200, 300};
 
-
-int xr=0,yr=0,zr = 0;
-int x=0,y=0,z = 0;
+//Camera rotation
+Camera camera = {0, 0, 0};
 
 void addToList(Ball *b){
 	Element *newE = new Element;
 	newE->object = b;
 	newE->next = list;
-	
+
 	list = newE;
 }
 
 void keyDownHandler(int c, int x, int y){
-	
 }
 
-void keyUpHandler(int c, int x, int y){
-	switch(c){
-		default:
-			break;
-	}
-	glutPostRedisplay();
+void keyUpHandler(int c, int x, int y){	
 }
+
 void keyDownHandler(unsigned char c, int x, int y){
 	//Camera rotation
-			 if(c == 'q') zr += 1;
-	else if(c == 'e') zr -= 1;
-	else if(c == 'a') xr += 1;
-	else if(c == 'd') xr -= 1;
-	else if(c == 'w') yr += 1;
-	else if(c == 's') yr -= 1;
+			 if(c == 'q') camera.zRotation += 1;
+	else if(c == 'e') camera.zRotation -= 1;
+	
+	else if(c == 'a') camera.xRotation += 1;
+	else if(c == 'd') camera.xRotation -= 1;
+	
+	else if(c == 'w') camera.yRotation += 1;
+	else if(c == 's') camera.yRotation -= 1;
 	
 	//Moving the cursor - pink ball
 	else if(c == 'y') cursor.r += 0.025;
@@ -64,30 +71,54 @@ void keyDownHandler(unsigned char c, int x, int y){
 	else if(c == 'u') cursor.y -= 0.1;
 	else if(c == 'i') cursor.z += 0.1;
 	else if(c == 'k') cursor.z -= 0.1;
+	//Add Pink Ball as Green Ball
 	else if(c == ' ') addToList(new Ball(cursor.x, cursor.y, cursor.z, cursor.r, glutGet(GLUT_ELAPSED_TIME)));
 	
 	glutPostRedisplay();
-	
 }
 
-void keyUpHandler(unsigned char c, int x, int y){
-	
-	switch(c){
-		default:
-			break;
-	}
-	glutPostRedisplay();
-	
+void keyUpHandler(unsigned char c, int x, int y){	
 }
 
 void refresh(void){
 	Element *e = list;
 	
 	while(e != NULL){
-			e->object->update(glutGet(GLUT_ELAPSED_TIME));
+		e->object->update(glutGet(GLUT_ELAPSED_TIME));
 		e = e -> next;
 	}
 	glutPostRedisplay();
+}
+inline void groundDraw(){
+	glColor3d(0.2, 0.2, 0.2);
+	for(float i = -20; i < 20; i++)
+		for(float j = -20; j < 20; j++){
+   	 float geomVertices[]={//4 lines * 2 vertex * 3 coords
+   	 		i, j, f(i, j),              
+				i + 0.95, j, f(i + 0.95, j),
+				
+   	 		i + 0.95, j, f(i + 0.95, j),              
+				i + 0.95, j + 0.95, f(i + 0.95, j + 0.95),             
+
+        i + 0.95,j + 0.95, f(i + 0.95, j + 0.95),              
+        i,j + 0.95, f(i, j + 0.95),
+        
+        i,j + 0.95, f(i, j + 0.95),              
+				i, j, f(i, j)        
+   	 };
+   	 int geomVertexCount = 8;
+   	 
+   	 glEnableClientState(GL_VERTEX_ARRAY);
+   	 glVertexPointer( 3, GL_FLOAT, 0, geomVertices);
+   	 glDrawArrays(GL_LINES, 0, geomVertexCount);
+   	 glDisableClientState(GL_VERTEX_ARRAY);
+   }
+}
+float toRad(){
+
+}
+int toDegrease(){
+
 }
 void displayFrame(void) {
 	glClearColor(0.0f, 0.3984375f, 0.796875f, 0.0f);
@@ -95,47 +126,33 @@ void displayFrame(void) {
 
 	//v-matrix settings
 	v = lookAt(
-		vec3(1.0f, 5.0f, 7.0f),
+		vec3(0.0f, 10.0f, 10.0f),
 		vec3(0, 0, 1),
 		vec3(0, 0, 1)//to jest wazne: patrzac od gory mamy kartezjanski ukl wsp: x i y, z jest wysokoscia!!!
 		);
 	
 	//X/Y/Z-axis rotation
-	v = rotate(v, zr * 1.0f, vec3(.0f, 0.0f, 1.0f));
-	v = rotate(v, yr * 1.0f, vec3(.0f, 1.0f, .0f));
-	v = rotate(v, xr * 1.0f, vec3(1.0f, .0f, .0f));
+	v *= rotate(mat4(1.0f), camera.zRotation, vec3(.0f, 0.0f, 1.0f));
+	v *= rotate(mat4(1.0f), camera.yRotation, vec3(.0f, 1.0f, .0f));
+	v *= rotate(mat4(1.0f), camera.xRotation, vec3(1.0f, .0f, .0f));
 	//p-matrix settings
-	p = perspective(50.0f, widthScreen / heightScreen * 1.0f, 1.0f, 50.0f);
+	p = perspective(50.0f, screen.width / screen.height, 1.0f, 50.0f);
 	
-	glMatrixMode(GL_PROJECTION);
+	glMatrixMode(GL_PROJECTION); 
 	glLoadMatrixf(value_ptr(p));
 	glMatrixMode(GL_MODELVIEW);
 	glLoadMatrixf(value_ptr(v * m));
 	
 	//ground draw
-	glColor3d(0.2, 0.2, 0.2);
-	mat4 o = scale(mat4(1.0f), vec3(100,100,0.01));
-	glLoadMatrixf(value_ptr(v * o));
-	glutSolidCube(1.0f);
-	
-	glColor3d(1.0, 1.0, 1.0);
-	for(float i = -10; i < 12; i+=1)
-		for(float j = -10; j < 20; j+=1){
-			mat4 m = translate(mat4(1.0f), vec3(i, j, f(i, j)));
-			glLoadMatrixf(value_ptr(v * m));
-			glutSolidSphere(0.4,  4, 4);
-		}
+	groundDraw();
 	//rysowanie obiektow
-	
-	glColor3d(1.0, .0, 1.0);
-	
+	glColor3d(1.0, 0.0, 1.0);
 	glLoadMatrixf(value_ptr(v * translate(mat4(1.0f), vec3(cursor.x,cursor.y,cursor.z))));
-	
 	glutSolidSphere(cursor.r, 15, 13);
 	
-	glColor3d(0.0, 1.0, .0);
-
+	glColor3d(0.0, 1.0, 0.0);
 	Element e = *list;
+	
 	while(1){
 		Ball b = *e.object;
 		
@@ -155,7 +172,7 @@ int main(int argc, char* argv[]) {
 	addToList(new Ball(-3, 2, 4, 0.2));
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-  glutInitWindowSize(widthScreen, heightScreen);
+  glutInitWindowSize(screen.width, screen.height);
   glutInitWindowPosition(40, 40);
   glutCreateWindow("Program Zaliczeniowy"); 
 	//my code

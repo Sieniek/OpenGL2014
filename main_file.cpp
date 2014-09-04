@@ -1,5 +1,11 @@
 #include <iostream>
-#include <math.h>
+#include <vector>
+#include <GL/freeglut.h>
+#include <ode/ode.h>
+#include <string>
+#include <cstdlib>
+#include <ctime>
+
 
 #include <GL/gl.h>
 #include <GL/glut.h>
@@ -7,175 +13,209 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
-#include "ball.h"
+#define OBJ_COUNT 78
 
+using namespace std;
 using namespace glm;
 
-struct Element{
-	Ball *object;
-	Element *next = NULL;
+dWorldID world;
+dBodyID ball_body;
+dSpaceID space;
+dGeomID ball_geom;
+dGeomID plane_geom;
+dMass ball_mass;
+dJointGroupID cgroup;
+
+float angle=0.0;
+
+enum ObjectType {BALL, PLANE};
+
+struct Object {
+	dBodyID body;
+	dGeomID geom;
+	dMass mass;
+	ObjectType type;
+	float color[4];
 };
+vector<Object> objects;
 
-struct Camera{
-	float xRotation, yRotation, zRotation;
-};
-struct Screen{
-	int width, height;
-};
 
-mat4 m, v, p;
+static void nearCallback(void *data, dGeomID o1, dGeomID o2) {
+	const int N = 120;
+	dContact contact[N];
 
-//List of Elements
-Element *list;
-
-//Pink ball
-Ball cursor = *new Ball();
-
-//screen settings (auto-change in p-matrix)
-Screen screen = {1200, 300};
-
-//Camera rotation
-Camera camera = {0, 0, 0};
-
-void addToList(Ball *b){
-	Element *newE = new Element;
-	newE->object = b;
-	newE->next = list;
-
-	list = newE;
-}
-
-void keyDownHandler(int c, int x, int y){
-}
-
-void keyUpHandler(int c, int x, int y){	
-}
-
-void keyDownHandler(unsigned char c, int x, int y){
-	//Camera rotation
-			 if(c == 'q') camera.zRotation += 1;
-	else if(c == 'e') camera.zRotation -= 1;
-	else if(c == 'a') camera.xRotation += 1;
-	else if(c == 'd') camera.xRotation -= 1;
-	else if(c == 'w') camera.yRotation += 1;
-	else if(c == 's') camera.yRotation -= 1;
-	
-	//Moving the cursor - pink ball
-	else if(c == 'y') cursor.r += 0.025;
-	else if(c == 'h') cursor.r -= 0.025;
-	else if(c == 'l') cursor.x += 0.1;
-	else if(c == 'j') cursor.x -= 0.1;
-	else if(c == 'o') cursor.y += 0.1;
-	else if(c == 'u') cursor.y -= 0.1;
-	else if(c == 'i') cursor.z += 0.1;
-	else if(c == 'k') cursor.z -= 0.1;
-	//Add Pink Ball as Green Ball
-	else if(c == ' ') addToList(new Ball(cursor.x, cursor.y, cursor.z, cursor.r, glutGet(GLUT_ELAPSED_TIME)));
-	
-	glutPostRedisplay();
-	
-}
-
-void keyUpHandler(unsigned char c, int x, int y){	
-}
-
-void refresh(void){
-	Element *e = list;
-	
-	while(e != NULL){
-		e->object->update(glutGet(GLUT_ELAPSED_TIME));
-		e = e -> next;
+	for (int i=0;i<N;i++) {
+		contact[i].surface.mode = dContactBounce;
+		contact[i].surface.mu = dInfinity;
+		contact[i].surface.mu2 = 5000;
+		contact[i].surface.bounce = 2.6;
+		contact[i].surface.bounce_vel = 0.0;
 	}
-	glutPostRedisplay();
-}
-inline void groundDraw(){
-	glColor3d(0.2, 0.2, 0.2);
-	for(float i = -20; i < 20; i++)
-		for(float j = -20; j < 20; j++){
-			glBegin(GL_QUADS);                      // Draw A Quad
-        glVertex3f(i, j, f(i, j));              // Top Left
-        glVertex3f( i + 0.95, j, f(i + 0.95, j));              // Top Right
-        glVertex3f( i + 0.95,j + 0.95, f(i + 0.95, j + 0.95));              // Bottom Right
-        glVertex3f(i,j + 0.95, f(i, j + 0.95));              // Bottom Left
-   	 glEnd(); 
-   }
-}
-void displayFrame(void) {
+	int n =  dCollide(o1,o2,N,&contact[0].geom,sizeof(dContact));
 
-	glClearColor(0.0f, 0.3984375f, 0.796875f, 0.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	for (int i = 0; i < n; i++) {
+		dJointID c = dJointCreateContact(world,cgroup,&contact[i]);
+		dJointAttach (c,dGeomGetBody(o1),dGeomGetBody(o2));
+	}
 
-	//v-matrix settings
-	v = lookAt(
-		vec3(0.0f, 10.0f, 10.0f),
-		vec3(0, 0, 1),
-		vec3(0, 0, 1)//to jest wazne: patrzac od gory mamy kartezjanski ukl wsp: x i y, z jest wysokoscia!!!
-		);
+}
+void DrawObject(Object& ob){//??????? banned functions
+	// materials setup per object basis
+	glMaterialfv(GL_FRONT, GL_AMBIENT, ob.color);
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, ob.color);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, ob.color);
+	if (ob.type == BALL){
 	
-	//X/Y/Z-axis rotation
-	v = rotate(v, camera.zRotation, vec3(.0f, 0.0f, 1.0f));
-	v = rotate(v, camera.yRotation, vec3(.0f, 1.0f, .0f));
-	v = rotate(v, camera.xRotation, vec3(1.0f, .0f, .0f));
-	//p-matrix settings
-	p = perspective(50.0f, screen.width / screen.height * 1.0f, 1.0f, 50.0f);
+			glMatrixMode(GL_MODELVIEW);
+			
+			glMaterialf(GL_FRONT, GL_SHININESS, 120.0);
+			const dReal *realP = dBodyGetPosition(ob.body);
 	
+			glLoadMatrixf(value_ptr(translate(mat4(1.0f), vec3(realP[0], realP[1], realP[2]))));
+	
+			glutSolidSphere(dGeomSphereGetRadius(ob.geom) , 20,20);
+
+	} else if (ob.type == PLANE) {//any other objects?
+		//clear from banned func
+			dVector3 v;
+			dGeomBoxGetLengths(ob.geom, v);
+			dReal *x = (dReal *)&v;
+			
+			glMatrixMode(GL_MODELVIEW);
+			glLoadMatrixf(value_ptr(scale(mat4(1.0f), vec3(x[0],x[1],x[2]))));
+			
+			
+			glutSolidCube(1);
+	}
+
+}
+
+void Draw() {
+	dSpaceCollide(space,0,&nearCallback);
+
+	dWorldQuickStep (world,0.01);
+
+	dJointGroupEmpty(cgroup);
+
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+
+	glMatrixMode(GL_MODELVIEW);//???????
+	glLoadIdentity();
+	// rotates local axis around y
+	//glRotatef(angle, 0.0,1.0,0.0);
+	if (angle>360.0) {
+        angle=0.0;
+    }
+    angle+=1;
+    glNormal3f(0.5, 0.5, 0.1);
+    for (int i=0;i<OBJ_COUNT;i++) {
+    	DrawObject(objects[i]);
+    }
+    glFlush();//nessesary??
+    glutSwapBuffers();
+}
+
+void Initialize() {
+	glClearColor(0.8, 0.9, 0.8, 0.0);
+	glEnable(GL_NORMALIZE);
+
+	glClearDepth(1.0f);
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LEQUAL);
+	glEnable(GL_LIGHTING);
+	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+
+	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE);
+	glShadeModel(GL_SMOOTH);
+
+	GLfloat qaAmbientLight[]	= {0.2, 0.2, 0.2, 1.0};
+	GLfloat qaDiffuseLight[]	= {1.0, 1.0, 1.0, 1.0};
+	GLfloat qaSpecularLight[]	= {1.0, 1.0, 1.0, 1.0};
+	glLightfv(GL_LIGHT0, GL_AMBIENT, qaAmbientLight);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, qaDiffuseLight);
+	glLightfv(GL_LIGHT0, GL_SPECULAR, qaSpecularLight);
+
+
 	glMatrixMode(GL_PROJECTION);
-	glLoadMatrixf(value_ptr(p));
-	glMatrixMode(GL_MODELVIEW);
-	glLoadMatrixf(value_ptr(v * m));
-	
-	//ground draw
-	groundDraw();
-	//rysowanie obiektow
-	glColor3d(1.0, 0.0, 1.0);
-	glLoadMatrixf(value_ptr(v * translate(mat4(1.0f), vec3(cursor.x,cursor.y,cursor.z))));
-	glutSolidSphere(cursor.r, 15, 13);
-	
-	glColor3d(0.0, 1.0, .0);
-	Element e = *list;
-	
-	while(1){
-		Ball b = *e.object;
-		
-		mat4 n = translate(mat4(1.0f), vec3(b.x, b.y, b.z));
-		glLoadMatrixf(value_ptr(v * n));
-		glutSolidSphere(b.r, 15, 13);
-		
-		if(!e.next) break;
-		
-		e = *e.next;
-	}
-	glutSwapBuffers();
+	glLoadIdentity();
+	//glOrtho(-200.0, 200.0, 200.0, -200.0, 0.0, 1000.0);
+
+	// when near is too low(i.e. 0), flickering occurs
+	gluPerspective(45.0f,1.0f,40.0f,10000.0f);//???????
+
+	gluLookAt (500.0, -400.0, 500, 0.0, 0.0, 0, 0,-0.5, 0);//???????
+
+	GLfloat qaLightPosition[]	= {100.0, -600.0, -100.0, 0.0};
+	glLightfv(GL_LIGHT0, GL_POSITION, qaLightPosition);
+	glEnable(GL_LIGHT0);
+
+}
+void Timer(int iUnused) {
+    glutPostRedisplay();
+    glutTimerFunc(1, Timer, 0);
 }
 
-int main(int argc, char* argv[]) {
-	
-	addToList(new Ball(-3, 2, 4, 0.2));
+int main(int argc, char** argv) {
+	srand(time(NULL));
   glutInit(&argc, argv);
-  glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-  glutInitWindowSize(screen.width, screen.height);
-  glutInitWindowPosition(40, 40);
-  glutCreateWindow("Program Zaliczeniowy"); 
-	//my code
-  glEnable(GL_LIGHTING);
-  glEnable(GL_LIGHT0);
-  glShadeModel(GL_SMOOTH);
-  glEnable(GL_COLOR_MATERIAL);
-  glEnable(GL_DEPTH_TEST);
-  
-	//refresh-ing all physics
-	glutIdleFunc(refresh);
-  
-	//obsluga klawiatury
-	glutSpecialFunc(keyDownHandler);
-	glutSpecialUpFunc(keyUpHandler);
-	glutKeyboardFunc(keyDownHandler);
-	glutKeyboardUpFunc(keyUpHandler);
-	
-	
-	//Rysowanie	   
-	glutDisplayFunc(displayFrame);
+  glutInitDisplayMode(GLUT_DEPTH | GLUT_RGB | GLUT_DOUBLE);
+  glutInitWindowSize(700, 700);
+  glutInitWindowPosition(200, 200);
+
+  glutCreateWindow("test");
+  Initialize();
+  dInitODE();
+
+  world = dWorldCreate();
+  dWorldSetGravity(world, 0.0, 9.81, 0.0);
+  dWorldSetERP(world, 0.9);
+  dWorldSetCFM(world, 1e-4);
+  dWorldSetLinearDamping(world, 0.00001);
+  dWorldSetAngularDamping(world, 0.005);
+  dWorldSetMaxAngularSpeed(world, 200);
+  dWorldSetContactMaxCorrectingVel(world,0.1);
+  dWorldSetContactSurfaceLayer(world,0.1);
+
+  space = dSimpleSpaceCreate(0);
+  cgroup = dJointGroupCreate(0);
+  // make some balls
+  for (int i=0;i<OBJ_COUNT-1;i++) {
+  	Object a;
+  	a.body = dBodyCreate(world);
+  	a.type = BALL;
+  	dMassSetZero(&a.mass);
+  	dMassSetSphereTotal(&a.mass, 1, 10);
+  	dBodySetMass(a.body, &a.mass);
+
+  	a.geom = dCreateSphere(space, 10);
+  	dGeomSetBody(a.geom, a.body);
+  	dGeomSetData(a.geom, (void*)"ball");
+  	dGeomSetPosition(a.geom, rand()%20 -10.0f, -200.0 -i*30.0, rand()%20 -10.0f);
+
+  	a.color[0] = rand()%1000 * 0.001;
+  	a.color[1] = rand()%1000 * 0.001;
+  	a.color[2] = rand()%1000 * 0.001;
+  	a.color[3] = 1.0f;
+
+  	objects.push_back(a);
+  }
+  Object plane;//here to change basic plane to custom surface created by math func
+  plane.type = PLANE;
+  plane.geom = dCreateBox (space, 500.0, 5, 500.0);
+
+  plane.color[0]=0.6;
+  plane.color[1]=0.3;
+  plane.color[2]=0.0;
+  plane.color[3]=1.0;
+
+	objects.push_back(plane);
+
+  glutDisplayFunc(Draw);
+  Timer(0);
 
   glutMainLoop();
+  dWorldDestroy(world);
+
+  dCloseODE();
   return 0;
 }
