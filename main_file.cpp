@@ -294,19 +294,40 @@ void Initialize() {
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, qaDiffuseLight);
 	glLightfv(GL_LIGHT0, GL_SPECULAR, qaSpecularLight);
 
-
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	//glOrtho(-200.0, 200.0, 200.0, -200.0, 0.0, 1000.0);
-
-	// when near is too low(i.e. 0), flickering occurs
-	gluPerspective(45.0f,1.0f,40.0f,10000.0f);//???????
-
-	gluLookAt (500.0, -400.0, 500, 0.0, 0.0, 0, 0,-0.5, 0);//???????
-
 	GLfloat qaLightPosition[]	= {100.0, -600.0, -100.0, 0.0};
 	glLightfv(GL_LIGHT0, GL_POSITION, qaLightPosition);
 	glEnable(GL_LIGHT0);
+
+	GLfloat qaAmbientLight2[]	= {0.1, 0.1, 0.1, 0.1};
+	GLfloat qaDiffuseLight2[]	= {0.5, 0.2, 0.1, 0.2};
+	GLfloat qaSpecularLight2[]	= {0.2, 0.2, 1.0, 1.0};
+	glLightfv(GL_LIGHT1, GL_AMBIENT, qaAmbientLight2);
+	glLightfv(GL_LIGHT1, GL_DIFFUSE, qaDiffuseLight2);
+	glLightfv(GL_LIGHT1, GL_SPECULAR, qaSpecularLight2);
+
+	//glOrtho(-200.0, 200.0, 200.0, -200.0, 0.0, 1000.0);
+
+	// when near is too low(i.e. 0), flickering occurs
+	glm::mat4 P=glm::perspective(45.0f,1.0f,40.0f,10000.0f);
+	glMatrixMode(GL_PROJECTION);
+	glLoadMatrixf(glm::value_ptr(P));
+
+	// glMatrixMode(GL_MODELVIEW);
+
+	// glm::mat4 V=glm::lookAt(
+	// 	glm::vec3(500.0f,-400.0f,500.0f),
+	// 	glm::vec3(0.0f,0.0f,0.0f),
+	// 	glm::vec3(0.0f,-0.5f,0.0f));
+
+	// glm::mat4 M=glm::mat4(1.0f);
+
+	// glLoadMatrixf(glm::value_ptr(V*M));
+
+	gluLookAt (500.0, -400.0, 500, 0.0, 0.0, 0, 0,-0.5, 0);//???????
+
+	GLfloat qaLightPosition2[]	= {100.0, -600.0, -100.0, 0.0};
+	glLightfv(GL_LIGHT1, GL_POSITION, qaLightPosition2);
+	glEnable(GL_LIGHT1);
 
 }
 void Timer(int iUnused) {
