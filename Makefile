@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-LIBS=-lGL -lglut -DdDOUBLE -lGL -lGLU -lglut -lode -lpthread
-=======
->>>>>>> hya
 
 LIBS=-DdDOUBLE -lGL -lGLU -lglut -lode -lpthread
 
