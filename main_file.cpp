@@ -203,7 +203,7 @@ void DrawObject(Object& ob){//??????? banned functions
 			glLoadMatrixf(value_ptr(scale(mat4(1.0f), vec3(x[0],x[1],x[2]))));
 			
 			
-			glutSolidCube(1);
+			glutSolidCube(0.5);
 	}
 
 }
@@ -217,10 +217,6 @@ void Draw() {
 
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
-	glMatrixMode(GL_MODELVIEW);//???????
-	glLoadIdentity();
-	// rotates local axis around y
-	//glRotatef(angle, 0.0,1.0,0.0);
 	if (angle>360.0) {
         angle=0.0;
     }
@@ -305,25 +301,11 @@ void Initialize() {
 	glLightfv(GL_LIGHT1, GL_DIFFUSE, qaDiffuseLight2);
 	glLightfv(GL_LIGHT1, GL_SPECULAR, qaSpecularLight2);
 
-	//glOrtho(-200.0, 200.0, 200.0, -200.0, 0.0, 1000.0);
-
-	// when near is too low(i.e. 0), flickering occurs
 	glm::mat4 P=glm::perspective(45.0f,1.0f,40.0f,10000.0f);
 	glMatrixMode(GL_PROJECTION);
 	glLoadMatrixf(glm::value_ptr(P));
 
-	// glMatrixMode(GL_MODELVIEW);
-
-	// glm::mat4 V=glm::lookAt(
-	// 	glm::vec3(500.0f,-400.0f,500.0f),
-	// 	glm::vec3(0.0f,0.0f,0.0f),
-	// 	glm::vec3(0.0f,-0.5f,0.0f));
-
-	// glm::mat4 M=glm::mat4(1.0f);
-
-	// glLoadMatrixf(glm::value_ptr(V*M));
-
-	gluLookAt (500.0, -400.0, 500, 0.0, 0.0, 0, 0,-0.5, 0);//???????
+	gluLookAt (500.0, -400.0, 500, 0.0, 0.0, 0, 0,-0.5, 0);// TODO - change to VIEW Matrix
 
 	GLfloat qaLightPosition2[]	= {100.0, -600.0, -100.0, 0.0};
 	glLightfv(GL_LIGHT1, GL_POSITION, qaLightPosition2);
