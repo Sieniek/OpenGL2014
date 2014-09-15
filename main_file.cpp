@@ -225,6 +225,7 @@ void Draw() {
     for (int i=0;i<OBJ_COUNT;i++) {
     	DrawObject(objects[i]);
     }
+    
 
     /* drawing heightfield - TODO
   	/*
