@@ -112,7 +112,6 @@ int** generateIndices(int* Vertices, int index){
 			
 	return odeVertices;
 }*/
-int i = 45;
 /*
 const int VertexCount = 9;
 const int IndexCount = 8 * 3;
@@ -186,7 +185,7 @@ int object_count = 0;
 void keyDownHandler(int c, int x, int y){
 }
 
-void keyUpHandler(int c, int x, int y){	i++;
+void keyUpHandler(int c, int x, int y){
   glFlush();
   glutSwapBuffers();
 }
@@ -262,9 +261,9 @@ void Initialize() {
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();//???????
 	
-	p = perspective( i * 1.0f, 1.0f * display.width / display.height , 40.0f, 5000.0f);
+	p = perspective(90.0f, 1.0f * display.width / display.height , 40.0f, 5000.0f);
 
-	v = lookAt( vec3(i * 1.0f, 1500.0, 500.0),// y is a height
+	v = lookAt( vec3(100.0f, 700.0, 400.0),// y is a height
 										vec3(0.0, 0.0, 0.0),
 										vec3(0.0, 1.0, 0.0));
 	
@@ -312,17 +311,17 @@ void DrawObject(Object& ob){
 	
 		glEnableClientState(GL_VERTEX_ARRAY);
 		//glEnableClientState(GL_COLOR_ARRAY);
-		//glEnableClientState( GL_NORMAL_ARRAY );
+		glEnableClientState(GL_NORMAL_ARRAY);
 	
 		glVertexPointer(3, GL_FLOAT, 0, Vertices);
-		//glNormalPointer( GL_FLOAT, 0, Normals);
+		glNormalPointer(GL_FLOAT, 0, Normals);
 		//glColorPointer(3, GL_FLOAT, 0, Colors);
 		//glDrawArrays(GL_LINES, 0, VertexCount);
 		glDrawElements(GL_TRIANGLES, IndexCount, GL_UNSIGNED_INT, gl_Indices);
 	
 		glDisableClientState(GL_VERTEX_ARRAY);
 		//glDisableClientState(GL_COLOR_ARRAY);
-		//glDisableClientState( GL_NORMAL_ARRAY );
+		glDisableClientState(GL_NORMAL_ARRAY);
 	}
 
 }
