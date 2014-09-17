@@ -77,6 +77,24 @@ struct DisplaySettings{
 	int width, height;
 };
 
+// position
+glm::vec3 position = glm::vec3( 100, 700, 400 );
+// horizontal angle : toward -Z
+float horizontalAngle = 3.14f;
+// vertical angle : 0, look at the horizon
+float verticalAngle = 0.0f;
+// Initial Field of View
+float initialFoV = 45.0f;
+ 
+float speed = 3.0f; // 3 units / second
+float mouseSpeed = 0.005f;
+
+int deltaTime = 0;
+int currentTime = 0;
+int lastTime = 0;
+
+int xpos, ypos;
+
 void DrawObject(Object& ob);
 static void nearCallback(void *data, dGeomID o1, dGeomID o2);
 void Draw();
@@ -176,6 +194,9 @@ dWorldID world;
 dSpaceID space;
 dJointGroupID cgroup;
 
+bool mouseButton[] = {0,0};
+bool keyPressed[] = {0,0,0,0};
+
 mat4 v,p;
 
 vector<Object> objects;
@@ -190,12 +211,36 @@ void keyUpHandler(int c, int x, int y){
   glutSwapBuffers();
 }
 
-void keyDownHandler(unsigned char c, int x, int y){
+void MouseRoutine(int x, int y){
+	xpos = x;
+	ypos = y;
 }
 
-void keyUpHandler(unsigned char c, int x, int y){	
-  glFlush();
-  glutSwapBuffers();
+void keyDownHandler(unsigned char c, int x, int y){
+    if(c == 'w') {
+    	keyPressed[0] = 1;
+    } else if(c == 'a') {
+    	keyPressed[1] = 1;
+    } else if(c == 's') {
+    	keyPressed[2] = 1;
+    } else if(c == 'd') {
+    	keyPressed[3] = 1;
+    }
+
+}
+
+void keyUpHandler(unsigned char c, int x, int y){
+	if(c == 'w') {
+    	keyPressed[0] = 0;
+    } else if(c == 'a') {
+    	keyPressed[1] = 0;
+    } else if(c == 's') {
+    	keyPressed[2] = 0;
+    } else if(c == 'd') {
+    	keyPressed[3] = 0;
+    }
+  //glFlush();
+  //glutSwapBuffers();
 }
 //*************
 static void nearCallback(void *data, dGeomID o1, dGeomID o2) {
@@ -218,9 +263,59 @@ static void nearCallback(void *data, dGeomID o1, dGeomID o2) {
 
 }
 void Draw() {
+	currentTime = glutGet(GLUT_ELAPSED_TIME);
+
+	deltaTime = currentTime - lastTime;
+
+	lastTime = currentTime;
+
+	horizontalAngle += mouseSpeed * deltaTime/500.0f * float(display.width/2 - xpos );
+	verticalAngle   += mouseSpeed * deltaTime/500.0f * float(display.height/2 - ypos );
+
+	glm::vec3 direction(
+    	cos(verticalAngle) * sin(horizontalAngle),
+    	sin(verticalAngle),
+    	cos(verticalAngle) * cos(horizontalAngle)
+	);
+
+	glm::vec3 right = glm::vec3(
+	    sin(horizontalAngle - 3.14f/2.0f),
+	    0,
+	    cos(horizontalAngle - 3.14f/2.0f)
+	);
+
+	if(keyPressed[0]) {
+		vec3 temp = direction * (deltaTime/500.0f) * speed; 
+    	position.x += temp.x;
+    	position.y += temp.y;
+    	position.z += temp.z;
+    } else if(keyPressed[1]) {
+    	position -= right * (deltaTime/500.0f) * speed;
+    } else if(keyPressed[2]) {
+    	position -= direction * (deltaTime/500.0f) * speed;
+    } else if(keyPressed[3]) {
+    	position +=    right * (deltaTime/500.0f) * speed;
+    }
+
+	// Up vector : perpendicular to both direction and right
+	glm::vec3 up = glm::cross( right, direction );
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();//???????
+	
+	p = perspective(90.0f, 1.0f * display.width / display.height , 40.0f, 5000.0f);
+
+	v = lookAt( position,// y is a height
+										position + direction,
+										up);
+	
+	glLoadMatrixf(value_ptr(p));
+	glMatrixMode(GL_MODELVIEW);
+	glLoadMatrixf(value_ptr(v));
+
 	dSpaceCollide(space, 0, &nearCallback);
 
-	dWorldQuickStep(world, 0.02);//much better with step = 0.02 als 0.1
+	dWorldQuickStep(world, 0.03);//much better with step = 0.02 als 0.1
 
 	dJointGroupEmpty(cgroup);
 	
@@ -255,21 +350,7 @@ void Initialize() {
 	GLfloat qaSpecularLight[]	= {1.0, 1.0, 1.0, 1.0};
 	glLightfv(GL_LIGHT0, GL_AMBIENT, qaAmbientLight);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, qaDiffuseLight);
-	glLightfv(GL_LIGHT0, GL_SPECULAR, qaSpecularLight);
-
-
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();//???????
-	
-	p = perspective(90.0f, 1.0f * display.width / display.height , 40.0f, 5000.0f);
-
-	v = lookAt( vec3(100.0f, 700.0, 400.0),// y is a height
-										vec3(0.0, 0.0, 0.0),
-										vec3(0.0, 1.0, 0.0));
-	
-	glLoadMatrixf(value_ptr(p));
-	glMatrixMode(GL_MODELVIEW);
-	glLoadMatrixf(value_ptr(v));
+	glLightfv(GL_LIGHT0, GL_SPECULAR, qaSpecularLight);	
 	
 	GLfloat qaLightPosition[]	= {100.0, 500.0, 100.0, 0.0};
 	glLightfv(GL_LIGHT0, GL_POSITION, qaLightPosition);
@@ -403,6 +484,9 @@ int main(int argc, char** argv) {
 	glutSpecialUpFunc(keyUpHandler);
 	glutKeyboardFunc(keyDownHandler);
 	glutKeyboardUpFunc(keyUpHandler);
+
+	glutPassiveMotionFunc(MouseRoutine);
+	glutWarpPointer(display.width/2,display.height/2);
   
   // make some balls
   ballsCreate();
