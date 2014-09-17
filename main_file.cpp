@@ -285,16 +285,13 @@ void Draw() {
 	);
 
 	if(keyPressed[0]) {
-		vec3 temp = direction * (deltaTime/500.0f) * speed; 
-    	position.x += temp.x;
-    	position.y += temp.y;
-    	position.z += temp.z;
+		position += direction * (deltaTime/1.0f) * speed; 
     } else if(keyPressed[1]) {
-    	position -= right * (deltaTime/500.0f) * speed;
+    	position -= right * (deltaTime/1.0f) * speed;
     } else if(keyPressed[2]) {
-    	position -= direction * (deltaTime/500.0f) * speed;
+    	position -= direction * (deltaTime/1.0f) * speed;
     } else if(keyPressed[3]) {
-    	position +=    right * (deltaTime/500.0f) * speed;
+    	position +=    right * (deltaTime/1.0f) * speed;
     }
 
 	// Up vector : perpendicular to both direction and right
