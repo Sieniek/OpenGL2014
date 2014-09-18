@@ -18,52 +18,8 @@
 
 using namespace std;
 using namespace glm;
-//* CONECTION: OpenGL + ODE*//
-// 1 methods change vision(OpenGL) and physics(ODE)
+
 enum ObjectType {BALL, PLANE};// maybe 2 vectors[]: 1 for Balls + 1 for Planes(planes will build up the surface)
-/* to do!!!
-class Object2{
-	private:
-	float color[3];
-	public:
-	dBodyID body;
-	dGeomID geom;
-	dMass mass;
-	ObjectType type;
-	
-	
-	void setColor(float r, float g, float b, float alpha){
-		color[0] = r; 
-		color[1] = g;
-		color[2] = b;
-		color[3] = alpha;
-	}
-	inline void setColor(){
-			setColor(rand() % 1000 * 0.001, rand() % 1000 * 0.001, rand() % 1000 * 0.001, 1.0f);
-	}
-	Object2(ObjectType obj_type, dReal position[3], dReal rotation[3]){
-		//body = dBodyCreate(world);
-		type = obj_type;
-		dGeomSetPosition(geom, position[0], position[1], position[2]);
-	}		
-	void init(){
-		dMassSetZero(&a.mass);
-		dMassSetSphereTotal(&a.mass, 1, 10);
-		dBodySetMass(a.body, &a.mass);
-		dGeomSetBody(a.geom, a.body);
-		dGeomSetData(a.geom, (void*)"ball");
-		dGeomSetPosition(a.geom, rand()%20 -10.0f, -200.0 -i*30.0, rand()%20 -10.0f);
-	}
-};
-
-a.body = dBodyCreate(world);
-			dMassSetZero(&a.mass);
-			dMassSetSphereTotal(&a.mass, 1, 10);
-			dBodySetMass(a.body, &a.mass);
-
-			dGeomSetBody(a.geom, a.body);
-			dGeomSetData(a.geom, (void*)"ball");
-*/
 
 struct Object {//class + constructor!!!
 	dBodyID body;
@@ -103,92 +59,12 @@ void Initialize();
 void Timer(int iUnused);
 void ballsCreate();
 void surfaceCreate();
-/** CUSTOM TRI–MESH **/
-//const int VertexCount = 9;
-//const int IndexCount = 8 * 3;
+
 
 float terrainFunc(float x, float y){
 	return x*x/200 + y*y/200;
 }
-/*
-//how to??
-float* generateVertices(int width, int lenght){
-	float Vertices[20];
-	index = 0
-	for(int i = width / -2; i < width / 2; i++)
-		for(int j = lenght / -2; j < lenght / 2; j++){
-			Vertices[index++] = i;
-			Vertices[index++] = j;
-			Vertices[index++] = terrainFunc(i, j);
-		}
-	return Vertices;
-}
-int** generateIndices(int* Vertices, int index){
-	int odeVertices[index/3][3];
-	for(int i = 0; i < index / 3; i++)
-		for(int j = 0; j < 3; j++)
-			odeVertices[i][j] = Vertices[3 * i + j];		
-			
-	return odeVertices;
-}*/
-/*
-const int VertexCount = 9;
-const int IndexCount = 8 * 3;
 
-float Vertices[VertexCount * 3] = {
-	 -500,   500, 500,
-	 		0,   500, 500,
-	 	500, 	 500, 500,
-	 -500,	 500,		0,
-	    0,	 	 0,		0,
-	 	500,	 500,		0,
-	 -500,	 500,-500,
-	  	0,	 500,-500,
-	  500,	 500,-500
-};
-float Normals[] = {
-	0,0.5,-0.5,
-	0,0.5,-0.5,
-	-0.5,0.5,0,
-	-0.5,0.5,0,
-	0,0.5,0.5,
-	0,0.5,0.5,
-	0.5,0.5,0,
-	0.5,0.5,0,
-	0.5,0.5,0,
-};
-unsigned int gl_Indices[IndexCount] = {//GL Indieces
-	4,0,1,
-	4,1,2,
-	4,2,5,
-	4,5,8,
-	4,8,7,
-	4,7,6,
-	4,6,3,
-	4,3,0
-};
-float Colors[] = {//Open GL material
-	0.5, 0.5, 0.5,
-	0.1, 0.5, 0.5,
-	0.1, 0.5, 0.5,
-	0.1, 0.5, 0.5,
-	0.5, 0.5, 0.5,
-	0.5, 0.5, 0.5,
-	0.5, 0.5, 0.5,
-	0.5, 0.5, 0.5
-};
-dTriIndex Indices[IndexCount / 3][3] = {
-	{4,0,1},
-	{4,1,2},
-	{4,2,5},
-	{4,5,8},
-	{4,8,7},
-	{4,7,6},
-	{4,6,3},
-	{4,3,0}
-};
-*/
-/** END TRI–MESH **/
 DisplaySettings display = {800, 400};
 
 dWorldID world;
