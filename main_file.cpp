@@ -84,10 +84,11 @@ float horizontalAngle = 3.14f;
 // vertical angle : 0, look at the horizon
 float verticalAngle = 0.0f;
 // Initial Field of View
-float initialFoV = 45.0f;
+float FoV = 60.0f;
  
-float speed = 3.0f; // 3 units / second
+float speed = 1.0f; // 3 units / second
 float mouseSpeed = 0.005f;
+float zoomSpeed = 3.0f;
 
 int deltaTime = 0;
 int currentTime = 0;
@@ -194,7 +195,7 @@ dWorldID world;
 dSpaceID space;
 dJointGroupID cgroup;
 
-bool mouseButton[] = {0,0};
+bool mouseButton[] = {0,0,0,0};
 bool keyPressed[] = {0,0,0,0};
 
 mat4 v,p;
@@ -211,9 +212,28 @@ void keyUpHandler(int c, int x, int y){
   glutSwapBuffers();
 }
 
-void MouseRoutine(int x, int y){
-	xpos = x;
-	ypos = y;
+void MouseRoutine(int x, int y){	
+	if(mouseButton[0] == 1) {
+		xpos = x;
+		ypos = y;
+	}
+}
+
+void mouseButtonFunc(int button, int state, int x, int y) {	
+	if (button == 0 && state != GLUT_UP) {
+		mouseButton[0] = 1;				
+		
+	} else if(mouseButton[0] == 1 && state == GLUT_UP && button == 0) {
+		mouseButton[0] = 0;	
+		xpos = x;
+		ypos = y;	
+		
+	}
+	if (button == 3 && state != GLUT_UP) {
+		if(FoV > 30.0f)FoV-=zoomSpeed;	
+	} else if(button == 4 && state != GLUT_UP) {
+		if(FoV < 120.0f)FoV+=zoomSpeed;
+	}
 }
 
 void keyDownHandler(unsigned char c, int x, int y){
@@ -269,8 +289,10 @@ void Draw() {
 
 	lastTime = currentTime;
 
-	horizontalAngle += mouseSpeed * deltaTime/500.0f * float(display.width/2 - xpos );
-	verticalAngle   += mouseSpeed * deltaTime/500.0f * float(display.height/2 - ypos );
+	if (mouseButton[0]) {
+		horizontalAngle += mouseSpeed * deltaTime/500.0f * float(display.width/2 - xpos );
+		verticalAngle   += mouseSpeed * deltaTime/500.0f * float(display.height/2 - ypos );
+	}	
 
 	glm::vec3 direction(
     	cos(verticalAngle) * sin(horizontalAngle),
@@ -300,7 +322,7 @@ void Draw() {
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();//???????
 	
-	p = perspective(90.0f, 1.0f * display.width / display.height , 40.0f, 5000.0f);
+	p = perspective(FoV, 1.0f * display.width / display.height , 40.0f, 5000.0f);
 
 	v = lookAt( position,// y is a height
 										position + direction,
@@ -312,7 +334,7 @@ void Draw() {
 
 	dSpaceCollide(space, 0, &nearCallback);
 
-	dWorldQuickStep(world, 0.03);//much better with step = 0.02 als 0.1
+	dWorldQuickStep(world, 0.04);//much better with step = 0.02 als 0.1
 
 	dJointGroupEmpty(cgroup);
 	
@@ -482,8 +504,10 @@ int main(int argc, char** argv) {
 	glutKeyboardFunc(keyDownHandler);
 	glutKeyboardUpFunc(keyUpHandler);
 
-	glutPassiveMotionFunc(MouseRoutine);
+	glutMotionFunc(MouseRoutine);
 	glutWarpPointer(display.width/2,display.height/2);
+	glutMouseFunc(mouseButtonFunc);
+
   
   // make some balls
   ballsCreate();
