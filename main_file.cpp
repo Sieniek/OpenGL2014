@@ -50,6 +50,10 @@ int deltaTime = 0;
 int currentTime = 0;
 int lastTime = 0;
 
+float force = 5000.0f;
+
+float distanceFromCamera = 20.0f;
+
 int xpos, ypos;
 
 void DrawObject(Object& ob);
@@ -135,14 +139,12 @@ void createOneBall(){
     	cos(verticalAngle) * cos(horizontalAngle)
 	);
 
-	dGeomSetPosition(ball.geom, position.x + direction.x, position.y + direction.y, position.z + direction.z);
+	dGeomSetPosition(ball.geom, position.x + distanceFromCamera * direction.x, position.y + distanceFromCamera * direction.y, position.z + distanceFromCamera * direction.z);
 
 	ball.color[0] = rand()%1000 * 0.001;
 	ball.color[1] = rand()%1000 * 0.001;
 	ball.color[2] = rand()%1000 * 0.001;
-	ball.color[3] = 1.0f;
-
-	float force = 5000.0f;
+	ball.color[3] = 1.0f;	
 
 	dBodyAddForce(ball.body, force*direction.x, force*direction.y, force*direction.z);
 
