@@ -1,5 +1,5 @@
 def mathFunc(x, z):
-	return (x * x + z * z)/20.0
+	return (x * (x + z) - z)/20.0
 	
 def sumVec3(a, b):
 	result = []

@@ -52,7 +52,7 @@ int lastTime = 0;
 
 float force = 5000.0f;
 
-int disaperePoint = 10000;
+int disaperePoint = 5000;
 
 float distanceFromCamera = 20.0f;
 
@@ -268,9 +268,9 @@ void Draw() {
 
   for (int i=0; i<object_count; i++) {
   	const dReal *realP = dBodyGetPosition(objects[i].body);
-  	if(sqrt(realP[0]*realP[0] + realP[1]*realP[1] + realP[2]*realP[2]) > disaperePoint){
-  		objects.erase(objects.begin() + i);
-  		printf("Deleted object at %f %f %f\n", realP[0], realP[1], realP[2]);
+  	if(objects[i].type!=PLANE && sqrt(realP[0]*realP[0] + realP[1]*realP[1] + realP[2]*realP[2]) > disaperePoint){
+  		printf("Deleted object %d at %f %f %f\n", objects[i].type, realP[0], realP[1], realP[2]);
+  		objects.erase(objects.begin() + i);  		
   		c++;
   	}
   	else
