@@ -52,6 +52,8 @@ int lastTime = 0;
 
 float force = 5000.0f;
 
+int disaperePoint = 10000;
+
 float distanceFromCamera = 20.0f;
 
 int xpos, ypos;
@@ -252,7 +254,7 @@ void Draw() {
 
 	dSpaceCollide(space, 0, &nearCallback);
 
-	dWorldQuickStep(world, 0.04);//much better with step = 0.02 als 0.1
+	dWorldQuickStep(world, 0.05);//much better with step = 0.02 als 0.1
 
 	dJointGroupEmpty(cgroup);
 	
@@ -262,9 +264,20 @@ void Draw() {
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	
+	int c = 0;
+
   for (int i=0; i<object_count; i++) {
-  	DrawObject(objects[i]);
+  	const dReal *realP = dBodyGetPosition(objects[i].body);
+  	if(sqrt(realP[0]*realP[0] + realP[1]*realP[1] + realP[2]*realP[2]) > disaperePoint){
+  		objects.erase(objects.begin() + i);
+  		printf("Deleted object at %f %f %f\n", realP[0], realP[1], realP[2]);
+  		c++;
+  	}
+  	else
+  		DrawObject(objects[i]);
   }
+
+  object_count -= c;
   glFlush();
   glutSwapBuffers();
 }
