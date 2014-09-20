@@ -59,6 +59,7 @@ void Initialize();
 void Timer(int iUnused);
 void ballsCreate();
 void surfaceCreate();
+void createOneBall();
 
 
 float terrainFunc(float x, float y){
@@ -81,11 +82,11 @@ vector<Object> objects;
 int object_count = 0;
 //keyboard handlers
 void keyDownHandler(int c, int x, int y){
+
 }
 
 void keyUpHandler(int c, int x, int y){
-  glFlush();
-  glutSwapBuffers();
+
 }
 
 void MouseRoutine(int x, int y){	
@@ -97,19 +98,56 @@ void MouseRoutine(int x, int y){
 
 void mouseButtonFunc(int button, int state, int x, int y) {	
 	if (button == 0 && state != GLUT_UP) {
-		mouseButton[0] = 1;				
-		
+		mouseButton[0] = 1;	
 	} else if(mouseButton[0] == 1 && state == GLUT_UP && button == 0) {
 		mouseButton[0] = 0;	
 		xpos = x;
-		ypos = y;	
-		
+		ypos = y;
+	}
+	if (button == GLUT_RIGHT_BUTTON && state != GLUT_UP) {
+		mouseButton[1] = 1;
+		createOneBall();
+	} else if(mouseButton[1] == 1 && state == GLUT_UP && button == 0) {
+		mouseButton[1] = 0;
 	}
 	if (button == 3 && state != GLUT_UP) {
 		if(FoV > 30.0f)FoV-=zoomSpeed;	
 	} else if(button == 4 && state != GLUT_UP) {
 		if(FoV < 120.0f)FoV+=zoomSpeed;
 	}
+}
+
+void createOneBall(){
+	Object ball;
+	ball.body = dBodyCreate(world);
+	ball.type = BALL;
+	dMassSetZero(&ball.mass);
+	dMassSetSphereTotal(&ball.mass, 1, 10);
+	dBodySetMass(ball.body, &ball.mass);
+
+	ball.geom = dCreateSphere(space, 10);
+	dGeomSetBody(ball.geom, ball.body);
+	dGeomSetData(ball.geom, (void*)"ball");
+
+	glm::vec3 direction(
+    	cos(verticalAngle) * sin(horizontalAngle),
+    	sin(verticalAngle),
+    	cos(verticalAngle) * cos(horizontalAngle)
+	);
+
+	dGeomSetPosition(ball.geom, position.x + direction.x, position.y + direction.y, position.z + direction.z);
+
+	ball.color[0] = rand()%1000 * 0.001;
+	ball.color[1] = rand()%1000 * 0.001;
+	ball.color[2] = rand()%1000 * 0.001;
+	ball.color[3] = 1.0f;
+
+	float force = 5000.0f;
+
+	dBodyAddForce(ball.body, force*direction.x, force*direction.y, force*direction.z);
+
+	objects.push_back(ball);
+	object_count++;
 }
 
 void keyDownHandler(unsigned char c, int x, int y){
@@ -121,6 +159,10 @@ void keyDownHandler(unsigned char c, int x, int y){
     	keyPressed[2] = 1;
     } else if(c == 'd') {
     	keyPressed[3] = 1;
+    } else if(c == 27) {
+    	dWorldDestroy(world);
+  		dCloseODE();
+    	exit(0);
     }
 
 }
@@ -135,8 +177,6 @@ void keyUpHandler(unsigned char c, int x, int y){
     } else if(c == 'd') {
     	keyPressed[3] = 0;
     }
-  //glFlush();
-  //glutSwapBuffers();
 }
 //*************
 static void nearCallback(void *data, dGeomID o1, dGeomID o2) {
