@@ -10,9 +10,9 @@ from random import random
 def mathFunc(x, z):
 	return (sin(x/5.0) * sin(z/5.0))
 
-X_RANGE = 100
-Y_RANGE = 100
-SCALE = 20
+X_RANGE = 10
+Y_RANGE = 10
+SCALE = 100
 
 vertices = []
 indices = []
@@ -61,11 +61,11 @@ for row in range(X_RANGE):
 		if row % 2 == 0 and column % 2 == 0:
 			plik.write('\t0,\t0,\n')
 		elif row % 2 == 0 and column % 2 == 1:
-			plik.write('\t0,\t255,\n')
+			plik.write('\t0,\t1.0f,\n')
 		elif row % 2 == 1 and column % 2 == 0:
-			plik.write('\t255,\t0,\n')
+			plik.write('\t1.0f,\t0,\n')
 		else:
-			plik.write('\t255,\t255, \n')
+			plik.write('\t1.0f,\t1.0f, \n')
 		
 plik.write('};\n')
 
