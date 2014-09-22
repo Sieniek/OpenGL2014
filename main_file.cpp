@@ -369,8 +369,7 @@ void DrawObject(Object& ob){
 		
 
 	} else{
-		glEnable(GL_TEXTURE_2D);
-		glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+		
 		glShadeModel(GL_FLAT);
 		glMatrixMode(GL_MODELVIEW);
 		glLoadMatrixf(value_ptr(v ));//*translate(mat4(1.0f),vec3(-200,-200,-500))* scale(mat4(1.0f), vec3(100.0f,10.0f,100.0f))));
@@ -383,6 +382,9 @@ void DrawObject(Object& ob){
 		glNormalPointer(GL_FLOAT, 0, Normals);
 		//glColorPointer(3, GL_FLOAT, 0, Colors);
 		//glDrawArrays(GL_LINES, 0, VertexCount);
+		glEnable(GL_TEXTURE_2D);
+		glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+		
 		glDrawElements(GL_TRIANGLES, IndexCount, GL_UNSIGNED_INT, gl_Indices);
 	
 		glDisableClientState(GL_VERTEX_ARRAY);

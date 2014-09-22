@@ -1,8 +1,8 @@
-LIBS=-DdDOUBLE -lGL -lGLU -lglut -lGLEW -lode -lpthread 
+LIBS=-DdDOUBLE -lGL -lGLU -lglut -lode -lpthread 
 CC=g++
 
-SOURCES=main_file.cpp tga.cpp shaderprogram.cpp
-HEADERS=tga.h surface.h shaderprogram.h
+SOURCES=main_file.cpp tga.cpp
+HEADERS=tga.h surface.h
 OBJECTS=$(SOURCES:.cpp=.o)
 
 all: main_file
