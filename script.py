@@ -1,20 +1,23 @@
+#Memory usage:
+#vertices = N * 3 * sizeof(float)
+#indices = 2 * (N - N ** 0.5 * 2 - 1) * sizeof(int)
+#wall_normals = 2 * (N - N ** 0.5 * 2 - 1) * 3 * sizeof(float)
+#vertices_normals = N * 3 * sizeof(float)
+
+from math import sin
+from random import random
+
 def mathFunc(x, z):
-	return (x * (x + z) - z)/20.0
-	
-def sumVec3(a, b):
-	result = []
-	for index in range(len(a)):
-		result += [a[index] + b[index]]
-	return result
+	return (sin(x/5.0) * sin(z/5.0))
+
+X_RANGE = 100
+Y_RANGE = 100
+SCALE = 20
 
 vertices = []
 indices = []
 wall_normals = []
 vertices_normals =[]
-
-X_RANGE = 10
-Y_RANGE = 10
-SCALE = 100
 
 plik = open('surface.h','w')
 
@@ -27,11 +30,10 @@ plik.write('float Vertices[] = {\n')
 for x in range(X_RANGE/-2 , X_RANGE/2):
 	for z in range(Y_RANGE/-2, Y_RANGE/2):
 		y = mathFunc(x,z)
-		vertices += [[SCALE *x, SCALE/10 * y,SCALE * z]]
+		vertices += [[SCALE * x, SCALE ** 2 * y,SCALE * z]]
 		plik.write('\t' + str(SCALE * x) + ',\t' + str(SCALE * y) + ',\t' + str(SCALE * z) + ',\n')
 
-plik.write('};\n')#change to '/b/b/n}' but /b shuld be a backspace and /b doesn't work
-
+plik.write('};\n')
 
 #Indices
 
@@ -52,6 +54,21 @@ for row in range(X_RANGE - 1):
 		indices +=[[b_index, a_index, c_index]]#this order is important for ODE to compute properly normals
 		
 plik.write('};\n')
+
+plik.write('unsigned int geomTexCoords[] = {\n')
+for row in range(X_RANGE):
+	for column in range(Y_RANGE):
+		if row % 2 == 0 and column % 2 == 0:
+			plik.write('\t0,\t0,\n')
+		elif row % 2 == 0 and column % 2 == 1:
+			plik.write('\t0,\t255,\n')
+		elif row % 2 == 1 and column % 2 == 0:
+			plik.write('\t255,\t0,\n')
+		else:
+			plik.write('\t255,\t255 \n')
+		
+plik.write('};\n')
+
 plik.write('unsigned int gl_Indices[] = {\n')
 
 for row in range(X_RANGE - 1):
@@ -90,20 +107,31 @@ for wall in indices:
 	
 	wall_normals += [[wall_normal[0]/l, wall_normal[1]/l, wall_normal[2]/l]] 
 
+
 plik.write('float Normals[] = {\n')
 
 for vertex_index in range(len(vertices)):
 	v=[0, 0, 0]
+	counter = 0
+	to_check = []
+	#3 down triangles
+	start = (vertex_index - 1) * 2 - 2 * vertex_index/(X_RANGE - 1) 
+	stop = start + 3
+	to_check += range(start,stop)
+	#3 up triangles
+	start = (vertex_index - 1 - X_RANGE) * 2
+	stop = start + 3
+	to_check += range(start, stop)
+	#to_check.remove!!! remove all x < 0
+	
 	for triangle_index in range(len(indices)):
 		if vertex_index in indices[triangle_index]:
 			v[0] += wall_normals[triangle_index][0]
 			v[1] += wall_normals[triangle_index][1]
 			v[2] += wall_normals[triangle_index][2]
-		
-		if v[1] < 0:#hope it's work
-			v[0] *= -1
-			v[1] *= -1
-			v[2] *= -1
+			counter += 1
+			if counter == 6: #max 8 triangles
+				break;
 		
 	#vertices_normals += [v]
 	plik.write('\t' + str(v[0]) + ',\t' + str(v[1]) + ',\t' + str(v[2]) + ',\n')		
