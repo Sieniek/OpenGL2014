@@ -1,5 +1,17 @@
+LIBS=-DdDOUBLE -lGL -lGLU -lglut -lGLEW -lode -lpthread 
+CC=g++
 
-LIBS=-DdDOUBLE -lGL -lGLU -lglut -lode -lpthread
+SOURCES=main_file.cpp tga.cpp shaderprogram.cpp
+HEADERS=tga.h surface.h shaderprogram.h
+OBJECTS=$(SOURCES:.cpp=.o)
 
-main_file: main_file.cpp
-	g++ -o Ball_simulation main_file.cpp $(LIBS)
+all: main_file
+
+main_file: $(OBJECTS) 
+	$(CC) -o $@ $(OBJECTS) $(LIBS)
+
+$(OBJECTS): %.o: %.cpp $(HEADERS)
+	$(CC) -c $< -o $@
+	
+clean:
+	-rm -rf *.o main_file

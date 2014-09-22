@@ -1,11 +1,14 @@
 #include <iostream>
 #include <vector>
-#include <GL/freeglut.h>//??
+//#include <GL/freeglut.h>//??
 #include <ode/ode.h>
 #include <string>
 #include <cstdlib>
 #include <ctime>
 
+#include "tga.h"
+
+#include <GL/glew.h>
 #include <GL/gl.h>
 #include <GL/glut.h>
 #include "glm/glm.hpp"
@@ -57,6 +60,13 @@ int disaperePoint = 5000;
 float distanceFromCamera = 20.0f;
 
 int xpos, ypos;
+
+//////// TEXTURES
+
+GLuint tex;
+TGAImg img;
+
+////////
 
 void DrawObject(Object& ob);
 static void nearCallback(void *data, dGeomID o1, dGeomID o2);
@@ -306,6 +316,29 @@ void Initialize() {
 	glLightfv(GL_LIGHT0, GL_POSITION, qaLightPosition);
 	glEnable(GL_LIGHT0);
 
+	char *fileName = "brick2c.tga";
+
+	if (img.Load(fileName) == IMG_OK) {
+		glGenTextures(1,&tex); //Zainicjuj uchwyt tex
+		glBindTexture(GL_TEXTURE_2D,tex); //Przetwarzaj uchwyt tex
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+		if (img.GetBPP()==24) //Obrazek 24bit
+			glTexImage2D(GL_TEXTURE_2D,0,3,img.GetWidth(),img.GetHeight(),0, GL_RGB,GL_UNSIGNED_BYTE,img.GetImg());
+		else if (img.GetBPP()==32)
+			//Obrazek 32bit
+			glTexImage2D(GL_TEXTURE_2D,0,4,img.GetWidth(),img.GetHeight(),0, GL_RGBA,GL_UNSIGNED_BYTE,img.GetImg());
+		else {
+			//Obrazek 16 albo 8 bit, takimi się nie przejmujemy
+		}
+	} else {
+		exit(666);
+	}
+
 }
 void Timer(int iUnused) {
     glutPostRedisplay();
@@ -322,7 +355,7 @@ void DrawObject(Object& ob){
 	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 50.0f);
 	
 	if (ob.type == BALL){
-	
+		
 		//glMaterialf(GL_FRONT, GL_SHININESS, 120.0);
 		
 		const dReal *realP = dBodyGetPosition(ob.body);
@@ -333,9 +366,11 @@ void DrawObject(Object& ob){
 		));
 
 		glutSolidSphere(dGeomSphereGetRadius(ob.geom), 20, 20);
+		
 
 	} else{
-			
+		glEnable(GL_TEXTURE_2D);
+		glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 		glShadeModel(GL_FLAT);
 		glMatrixMode(GL_MODELVIEW);
 		glLoadMatrixf(value_ptr(v ));//*translate(mat4(1.0f),vec3(-200,-200,-500))* scale(mat4(1.0f), vec3(100.0f,10.0f,100.0f))));
@@ -353,6 +388,7 @@ void DrawObject(Object& ob){
 		glDisableClientState(GL_VERTEX_ARRAY);
 		//glDisableClientState(GL_COLOR_ARRAY);
 		glDisableClientState(GL_NORMAL_ARRAY);
+		glDisable(GL_TEXTURE_2D);
 	}
 
 }
@@ -452,5 +488,6 @@ int main(int argc, char** argv) {
   dWorldDestroy(world);
 
   dCloseODE();
+  glDeleteTextures(1,&tex);
   return 0;
 }
