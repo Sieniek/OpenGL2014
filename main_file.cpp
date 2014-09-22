@@ -78,9 +78,7 @@ void surfaceCreate();
 void createOneBall();
 
 
-float terrainFunc(float x, float y){
-	return x*x/200 + y*y/200;
-}
+GLuint bufGeomVertices, bufGeomIndexes;//VBO
 
 DisplaySettings display = {800, 400};
 
@@ -369,35 +367,53 @@ void DrawObject(Object& ob){
 		
 
 	} else{
-		glEnable(GL_TEXTURE_2D);
-		glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	
+		glGenBuffers(1, &bufGeomVertices);
+		glBindBuffer(GL_ARRAY_BUFFER, bufGeomVertices);
+		glBufferData(GL_ARRAY_BUFFER,
+			VertexCount * sizeof(float) * 3,
+			Vertices,
+			GL_STATIC_DRAW);
+			
+		glGenBuffers(1, &bufGeomIndexes);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufGeomIndexes);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+		IndexCount * sizeof(float),
+		gl_Indices,
+		GL_STATIC_DRAW);
+			
+		//glEnable(GL_TEXTURE_2D);
+		//glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 		glShadeModel(GL_FLAT);
 		glMatrixMode(GL_MODELVIEW);
 		glLoadMatrixf(value_ptr(v ));//*translate(mat4(1.0f),vec3(-200,-200,-500))* scale(mat4(1.0f), vec3(100.0f,10.0f,100.0f))));
 	
 		glEnableClientState(GL_VERTEX_ARRAY);
-		//glEnableClientState(GL_COLOR_ARRAY);
-		glEnableClientState(GL_NORMAL_ARRAY);
-
-		glBindBuffer(GL_ARRAY_BUFFER, Vertices);
+		
+		glBindBuffer(GL_ARRAY_BUFFER, bufGeomVertices);
 		glVertexPointer( 3, GL_FLOAT, 0, NULL);
-
-		glBindBuffer(GL_ARRAY_BUFFER, Normals);
-		glNormalPointer(GL_FLOAT, 0, NULL);
-
+		
+		
 		glBindBuffer(GL_ARRAY_BUFFER,0);
-		glDrawArrays( GL_TRIANGLES, 0, IndexCount );
-	
+		
+		
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufGeomIndexes);
+		
+		
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufGeomIndexes);
+		glDrawElements(GL_TRIANGLES, IndexCount,
+		GL_UNSIGNED_INT, NULL );
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
+		
+		//glBindBuffer(GL_ARRAY_BUFFER, gl_Indices);
+		//glNormalPointer(GL_FLOAT, 0, NULL);
 
-		//glColorPointer(3, GL_FLOAT, 0, Colors);
-		//glDrawArrays(GL_LINES, 0, VertexCount);
+		glDrawArrays( GL_TRIANGLES, 0, VertexCount );
 
-	
 		glDisableClientState(GL_VERTEX_ARRAY);
-		//glDisableClientState(GL_COLOR_ARRAY);
-		glDisableClientState(GL_NORMAL_ARRAY);
+		//glDisableClientState(GL_NORMAL_ARRAY);
 
-		glDisable(GL_TEXTURE_2D);
+		//glDisable(GL_TEXTURE_2D);
 	}
 
 }
@@ -442,6 +458,9 @@ void surfaceCreate(){//to do: change plane to a custom surface
 	plane.geom = dCreateTriMesh(space, new_tmdata, 0, 0, 0);
 	objects.push_back(plane);
 	object_count++;
+	
+	
+	
 }
 
 dWorldID worldInit(){
@@ -498,5 +517,6 @@ int main(int argc, char** argv) {
 
   dCloseODE();
   glDeleteTextures(1,&tex);
+  glDeleteBuffers(1,&bufGeomVertices);
   return 0;
 }
