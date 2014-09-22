@@ -4,15 +4,15 @@
 #wall_normals = 2 * (N - N ** 0.5 * 2 - 1) * 3 * sizeof(float)
 #vertices_normals = N * 3 * sizeof(float)
 
-from math import sin
+from math import *
 from random import random
 
 def mathFunc(x, z):
-	return (sin(x/5.0) * sin(z/5.0))
+	return (cos(x) - 2*sin(x+z))
 
-X_RANGE = 10
-Y_RANGE = 10
-SCALE = 100
+X_RANGE = 100
+Y_RANGE = 100
+SCALE = 20
 
 vertices = []
 indices = []

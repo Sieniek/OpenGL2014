@@ -330,20 +330,20 @@ void Draw() {
 	
 	int c = 0;
 
-  for (int i=0; i<object_count; i++) {
-  	const dReal *realP = dBodyGetPosition(objects[i].body);
-  	if(objects[i].type!=PLANE && sqrt(realP[0]*realP[0] + realP[1]*realP[1] + realP[2]*realP[2]) > disaperePoint){
-  		printf("Deleted object %d at %f %f %f\n", objects[i].type, realP[0], realP[1], realP[2]);
-  		objects.erase(objects.begin() + i);  		
-  		c++;
-  	}
-  	else
-  		DrawObject(objects[i]);
-  }
+	  for (int i=0; i<object_count; i++) {
+	  	const dReal *realP = dBodyGetPosition(objects[i].body);
+	  	if(objects[i].type!=PLANE && sqrt(realP[0]*realP[0] + realP[1]*realP[1] + realP[2]*realP[2]) > disaperePoint){
+	  		printf("Deleted object %d at %f %f %f\n", objects[i].type, realP[0], realP[1], realP[2]);
+	  		objects.erase(objects.begin() + i);  		
+	  		c++;
+	  	}
+	  	else
+	  		DrawObject(objects[i]);
+	  }
 
-  object_count -= c;
-  glFlush();
-  glutSwapBuffers();
+	  object_count -= c;
+	  glFlush();
+	  glutSwapBuffers();
 }
 
 void Initialize() {
@@ -353,6 +353,7 @@ void Initialize() {
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
 	glEnable(GL_LIGHTING);
+	glEnable(GL_NORMALIZE);
 	
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
@@ -370,7 +371,7 @@ void Initialize() {
 	glLightfv(GL_LIGHT0, GL_POSITION, qaLightPosition);
 	glEnable(GL_LIGHT0);
 
-	char *fileName = "brick2c.tga";
+	char *fileName = "stones.tga";
 
 	if (img.Load(fileName) == IMG_OK) {
 		glGenTextures(1,&tex); //Zainicjuj uchwyt tex
@@ -403,13 +404,14 @@ void Timer(int iUnused) {
 /*****************/
 void DrawObject(Object& ob){
 	// materials setup per object basis
-	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ob.color);
-	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, ob.color);
-	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, ob.color);
-	glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, ob.color);
-	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 50.0f);
+	
 	
 	if (ob.type == BALL){
+		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ob.color);
+		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, ob.color);
+		glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, ob.color);
+		glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, ob.color);
+		glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 50.0f);
 		
 		//glMaterialf(GL_FRONT, GL_SHININESS, 120.0);
 		
@@ -424,6 +426,21 @@ void DrawObject(Object& ob){
 		
 
 	} else{
+		//The color of the sphere
+		GLfloat ambient[] = {0.0f, 0.0f, 0.0f, 1.0f};
+		GLfloat diffuse[] = {1.0f, 1.0f, 1.0f, 1.0f};
+		//The specular (shiny) component of the material
+		GLfloat materialSpecular[] = {0.5f,0.5f,0.5f,1};
+		//The color emitted by the material
+		//The color emitted by the material
+		GLfloat materialEmission[] = {0.0f,0.0f,0, 1.0f};
+		glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 50.0f);
+	
+
+		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ambient);
+		glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, materialSpecular);
+		glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, materialEmission);
+
 		glEnable(GL_TEXTURE_2D);
 		glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 		glShadeModel(GL_FLAT);
