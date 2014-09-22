@@ -55,7 +55,7 @@ for row in range(X_RANGE - 1):
 		
 plik.write('};\n')
 
-plik.write('unsigned int geomTexCoords[] = {\n')
+plik.write('float geomTexCoords[] = {\n')
 for row in range(X_RANGE):
 	for column in range(Y_RANGE):
 		if row % 2 == 0 and column % 2 == 0:
