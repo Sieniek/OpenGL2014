@@ -65,7 +65,7 @@ for row in range(X_RANGE):
 		elif row % 2 == 1 and column % 2 == 0:
 			plik.write('\t255,\t0,\n')
 		else:
-			plik.write('\t255,\t255 \n')
+			plik.write('\t255,\t255, \n')
 		
 plik.write('};\n')
 
