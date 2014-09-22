@@ -1,4 +1,4 @@
-LIBS=-DdDOUBLE -lGL -lGLU -lglut -lode -lpthread 
+LIBS=-DdDOUBLE -lGL -lGLU -lglut -lGLEW -lode -lpthread 
 CC=g++
 
 SOURCES=main_file.cpp tga.cpp
