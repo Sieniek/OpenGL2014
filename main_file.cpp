@@ -331,13 +331,23 @@ void Initialize() {
 	GLfloat qaAmbientLight[]	= {1.0, 1.0, 1.0, 1.0};
 	GLfloat qaDiffuseLight[]	= {1.0, 1.0, 1.0, 1.0};
 	GLfloat qaSpecularLight[]	= {1.0, 1.0, 1.0, 1.0};
+	GLfloat qaAmbientLight2[]	= {1.0, 1.0, 1.0, 1.0};
+	GLfloat qaDiffuseLight2[]	= {0.1, 0.1, 0.1, 1.0};
+	GLfloat qaSpecularLight2[]	= {0.1, 0.1, 0.1, 1.0};
 	glLightfv(GL_LIGHT0, GL_AMBIENT, qaAmbientLight);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, qaDiffuseLight);
 	glLightfv(GL_LIGHT0, GL_SPECULAR, qaSpecularLight);
+	glLightfv(GL_LIGHT1, GL_AMBIENT, qaAmbientLight2);
+	glLightfv(GL_LIGHT1, GL_DIFFUSE, qaDiffuseLight2);
+	glLightfv(GL_LIGHT1, GL_SPECULAR, qaSpecularLight2);
 
 	GLfloat qaLightPosition[]	= {100.0, 500.0, 100.0, 0.0};
 	glLightfv(GL_LIGHT0, GL_POSITION, qaLightPosition);
 	glEnable(GL_LIGHT0);
+
+	GLfloat qaLightPosition2[]	= {0.0, 600.0, 200.0, 0.0};
+	glLightfv(GL_LIGHT1, GL_POSITION, qaLightPosition2);
+	glEnable(GL_LIGHT1);
 
 	char *fileName = "stones.tga";
 
