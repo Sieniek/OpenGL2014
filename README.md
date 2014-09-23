@@ -5,7 +5,7 @@ Zaliczenie z OpenGL 2.0 (4 semestr)
 
 #Sterowanie
 
-**WSAD** - poruszanie kamera przód/tył/lewo/prawo
+**WSADEQ** - poruszanie kamera przód/tył/lewo/prawo/dol/gora
 
 **Lewy przycisk myszki** - przesuwanie widoku kamery
 
