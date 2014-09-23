@@ -254,9 +254,9 @@ void Draw() {
 
 	p = perspective(FoV, 1.0f * display.width / display.height , 40.0f, 5000.0f);
 
-	v = lookAt( position,// y is a height
-		position + direction,
-		up);
+	v = lookAt( position,// where is camera
+		position + direction, // camera + direction where you lookin
+		up); // where is up
 
 	glLoadMatrixf(value_ptr(p));
 	glMatrixMode(GL_MODELVIEW);
@@ -279,7 +279,7 @@ void Draw() {
 	for (int i=0; i<object_count - c; i++) {
 		const dReal *realP = dBodyGetPosition(objects[i].body);
 		if(objects[i].type!=PLANE && sqrt(realP[0]*realP[0] + realP[1]*realP[1] + realP[2]*realP[2]) > disaperePoint){
-			printf("Deleted object %d at %f %f %f\n", objects[i].type, realP[0], realP[1], realP[2]);
+			//printf("Deleted object %d at %f %f %f\n", objects[i].type, realP[0], realP[1], realP[2]);
 			objects.erase(objects.begin() + i);
 			c++;
 		}
