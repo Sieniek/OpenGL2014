@@ -49,60 +49,6 @@ float speed = 1.0f; // 3 units / second
 float mouseSpeed = 0.005f;
 float zoomSpeed = 3.0f;
 
-float geomTexCoords2[]={
-	1.0f,1.0f, 0.0f,0.0f, 0.0f,1.0f, 
-	1.0f,1.0f, 1.0f,0.0f, 0.0f,0.0f,
-	
-	1.0f,1.0f, 0.0f,0.0f, 0.0f,1.0f, 
-	1.0f,1.0f, 1.0f,0.0f, 0.0f,0.0f,
-	
-	1.0f,1.0f, 0.0f,0.0f, 0.0f,1.0f, 
-	1.0f,1.0f, 1.0f,0.0f, 0.0f,0.0f,
-	
-	1.0f,1.0f, 0.0f,0.0f, 0.0f,1.0f, 
-	1.0f,1.0f, 1.0f,0.0f, 0.0f,0.0f,
-	
-	1.0f,1.0f, 0.0f,0.0f, 0.0f,1.0f, 
-	1.0f,1.0f, 1.0f,0.0f, 0.0f,0.0f,
-	
-	1.0f,1.0f, 0.0f,0.0f, 0.0f,1.0f, 
-	1.0f,1.0f, 1.0f,0.0f, 0.0f,0.0f,
-	1.0f,1.0f, 0.0f,0.0f, 0.0f,1.0f, 
-	1.0f,1.0f, 1.0f,0.0f, 0.0f,0.0f,
-	
-	1.0f,1.0f, 0.0f,0.0f, 0.0f,1.0f, 
-	1.0f,1.0f, 1.0f,0.0f, 0.0f,0.0f,
-	
-	1.0f,1.0f, 0.0f,0.0f, 0.0f,1.0f, 
-	1.0f,1.0f, 1.0f,0.0f, 0.0f,0.0f,
-	
-	1.0f,1.0f, 0.0f,0.0f, 0.0f,1.0f, 
-	1.0f,1.0f, 1.0f,0.0f, 0.0f,0.0f,
-	
-	1.0f,1.0f, 0.0f,0.0f, 0.0f,1.0f, 
-	1.0f,1.0f, 1.0f,0.0f, 0.0f,0.0f,
-	
-	1.0f,1.0f, 0.0f,0.0f, 0.0f,1.0f, 
-	1.0f,1.0f, 1.0f,0.0f, 0.0f,0.0f,
-	1.0f,1.0f, 0.0f,0.0f, 0.0f,1.0f, 
-	1.0f,1.0f, 1.0f,0.0f, 0.0f,0.0f,
-	
-	1.0f,1.0f, 0.0f,0.0f, 0.0f,1.0f, 
-	1.0f,1.0f, 1.0f,0.0f, 0.0f,0.0f,
-	
-	1.0f,1.0f, 0.0f,0.0f, 0.0f,1.0f, 
-	1.0f,1.0f, 1.0f,0.0f, 0.0f,0.0f,
-	
-	1.0f,1.0f, 0.0f,0.0f, 0.0f,1.0f, 
-	1.0f,1.0f, 1.0f,0.0f, 0.0f,0.0f,
-	
-	1.0f,1.0f, 0.0f,0.0f, 0.0f,1.0f, 
-	1.0f,1.0f, 1.0f,0.0f, 0.0f,0.0f,
-	
-	1.0f,1.0f, 0.0f,0.0f, 0.0f,1.0f, 
-	1.0f,1.0f, 1.0f,0.0f, 0.0f,0.0f
-};
-
 int deltaTime = 0;
 int currentTime = 0;
 int lastTime = 0;
@@ -330,7 +276,7 @@ void Draw() {
 	
 	int c = 0;
 
-	  for (int i=0; i<object_count; i++) {
+	  for (int i=0; i<object_count - c; i++) {
 	  	const dReal *realP = dBodyGetPosition(objects[i].body);
 	  	if(objects[i].type!=PLANE && sqrt(realP[0]*realP[0] + realP[1]*realP[1] + realP[2]*realP[2]) > disaperePoint){
 	  		printf("Deleted object %d at %f %f %f\n", objects[i].type, realP[0], realP[1], realP[2]);
@@ -422,7 +368,7 @@ void DrawObject(Object& ob){
 		 * translate(mat4(1.0f), vec3(realP[0], realP[1], realP[2]))
 		));
 
-		glutSolidSphere(dGeomSphereGetRadius(ob.geom), 20, 20);
+		glutSolidSphere(dGeomSphereGetRadius(ob.geom), 40, 20);
 		
 
 	} else{
