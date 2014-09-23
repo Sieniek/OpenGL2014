@@ -158,7 +158,7 @@ void cubeCreate(float x, float y, float z) {
 	cube.body = dBodyCreate(world);
 	cube.type = CUBE;
 	dMassSetZero(&cube.mass);
-	dMassSetBox(&cube.mass, 1, 10, 10, 10);
+	dMassSetBoxTotal(&cube.mass, 1, 10, 10, 10);
 	dBodySetMass(cube.body, &cube.mass);
 
 	cube.geom = dCreateBox(space, 120, 120, 120);
