@@ -8,11 +8,11 @@ from math import *
 from random import random
 
 def mathFunc(x, z):
-	return (cos(x) - 2*sin(x+z))
+	return (0.5*sin(x^2)-0.5*cos(z^2))
 
-X_RANGE = 100
-Y_RANGE = 100
-SCALE = 20
+X_RANGE = 10
+Y_RANGE = 10
+SCALE = 500
 
 vertices = []
 indices = []

@@ -360,7 +360,7 @@ void Initialize() {
 	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE);
 	glShadeModel(GL_SMOOTH);
 	
-	GLfloat qaAmbientLight[]	= {0.2, 0.2, 0.2, 1.0};
+	GLfloat qaAmbientLight[]	= {1.0, 1.0, 1.0, 1.0};
 	GLfloat qaDiffuseLight[]	= {1.0, 1.0, 1.0, 1.0};
 	GLfloat qaSpecularLight[]	= {1.0, 1.0, 1.0, 1.0};
 	glLightfv(GL_LIGHT0, GL_AMBIENT, qaAmbientLight);
@@ -427,14 +427,14 @@ void DrawObject(Object& ob){
 
 	} else{
 		//The color of the sphere
-		GLfloat ambient[] = {0.0f, 0.0f, 0.0f, 1.0f};
-		GLfloat diffuse[] = {1.0f, 1.0f, 1.0f, 1.0f};
+		GLfloat ambient[] = {0.6f, 0.6f, 0.6f, 1.0f};
+		GLfloat diffuse[] = {0.8f, 0.8f, 0.8f, 1.0f};
 		//The specular (shiny) component of the material
-		GLfloat materialSpecular[] = {0.5f,0.5f,0.5f,1};
+		GLfloat materialSpecular[] = {0.0f,0.0f,0.0f,1};
 		//The color emitted by the material
 		//The color emitted by the material
 		GLfloat materialEmission[] = {0.0f,0.0f,0, 1.0f};
-		glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 50.0f);
+		glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 0.0f);
 	
 
 		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ambient);
