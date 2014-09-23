@@ -22,7 +22,7 @@
 using namespace std;
 using namespace glm;
 
-enum ObjectType {BALL, PLANE};// maybe 2 vectors[]: 1 for Balls + 1 for Planes(planes will build up the surface)
+enum ObjectType {BALL, PLANE, CUBE};// maybe 2 vectors[]: 1 for Balls + 1 for Planes(planes will build up the surface)
 
 struct Object {//class + constructor!!!
 	dBodyID body;
@@ -76,6 +76,7 @@ void Timer(int iUnused);
 void ballsCreate();
 void surfaceCreate();
 void createOneBall();
+void cubeCreate(float x, float y, float z);
 
 DisplaySettings display = {800, 400};
 
@@ -149,6 +150,29 @@ void createOneBall(){
 	dBodyAddForce(ball.body, force*direction.x, force*direction.y, force*direction.z);
 
 	objects.push_back(ball);
+	object_count++;
+}
+
+void cubeCreate(float x, float y, float z) {
+	Object cube;
+	cube.body = dBodyCreate(world);
+	cube.type = CUBE;
+	dMassSetZero(&cube.mass);
+	dMassSetBox(&cube.mass, 1, 10, 10, 10);
+	dBodySetMass(cube.body, &cube.mass);
+
+	cube.geom = dCreateBox(space, 120, 120, 120);
+	dGeomSetBody(cube.geom, cube.body);
+	dGeomSetData(cube.geom, (void*)"box");
+
+	dGeomSetPosition(cube.geom, x, y, z);
+
+	cube.color[0] = rand()%1000 * 0.001;
+	cube.color[1] = rand()%1000 * 0.001;
+	cube.color[2] = rand()%1000 * 0.001;
+	cube.color[3] = 1.0f;
+
+	objects.push_back(cube);
 	object_count++;
 }
 
@@ -369,7 +393,7 @@ void DrawObject(Object& ob){
 		glutSolidSphere(dGeomSphereGetRadius(ob.geom), 40, 20);
 
 
-	} else{
+	} else if(ob.type == PLANE){
 		//The color of the sphere
 		GLfloat ambient[] = {0.6f, 0.6f, 0.6f, 1.0f};
 		GLfloat diffuse[] = {0.8f, 0.8f, 0.8f, 1.0f};
@@ -410,6 +434,23 @@ void DrawObject(Object& ob){
 		//glDisableClientState(GL_COLOR_ARRAY);
 		glDisableClientState(GL_NORMAL_ARRAY);
 		glDisable(GL_TEXTURE_2D);
+	} else {
+		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ob.color);
+		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, ob.color);
+		glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, ob.color);
+		glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, ob.color);
+		glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 50.0f);
+
+		//glMaterialf(GL_FRONT, GL_SHININESS, 120.0);
+
+		const dReal *realP = dBodyGetPosition(ob.body);
+
+		glMatrixMode(GL_MODELVIEW);
+		glLoadMatrixf(value_ptr( v
+			* translate(mat4(1.0f), vec3(realP[0], realP[1], realP[2]))
+			));
+
+		glutSolidCube(120);
 	}
 
 }
@@ -426,7 +467,7 @@ void ballsCreate(){
 		ball.geom = dCreateSphere(space, 10);
 		dGeomSetBody(ball.geom, ball.body);
 		dGeomSetData(ball.geom, (void*)"ball");
-		dGeomSetPosition(ball.geom, rand()%400 -200.0f, 200.0 +i * 30.0, rand() % 200 - 100.0f);
+		dGeomSetPosition(ball.geom, rand()%400 -200.0f, 600.0 +i * 30.0, rand() % 200 - 100.0f);
 
 		ball.color[0] = rand()%1000 * 0.001;
 		ball.color[1] = rand()%1000 * 0.001;
@@ -499,6 +540,8 @@ int main(int argc, char** argv) {
 	ballsCreate();
   //Create a surface
 	surfaceCreate();
+
+	//cubeCreate(rand()%400 -200.0f,1200,rand() % 200 - 100.0f);
 
 	glutDisplayFunc(Draw);
 	Timer(0);
